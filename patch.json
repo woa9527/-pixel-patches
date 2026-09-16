@@ -4,8 +4,8 @@
   "base": "https://cdn.jsdelivr.net/gh/woa9527/-pixel-patches@main/v1.2",
   "title": "1.2 快照",
   "desc": "v1.2 快照：两级菜单 / 设置页 / 在线热更",
-  "size": 320586,
-  "ts": 1789577470,
+  "size": 347017,
+  "ts": 1789579436,
   "files": [
     "css/base.css",
     "css/layout.css",
