@@ -1,0 +1,63 @@
+/* help.css
+   —— 帮助面板：help.md 渲染出来的排版（配合 md.js 生成的那些 .md* 类名）
+   整套 UI 是深色的，所以这里按深底读字来配：正文够亮、表格有分隔线、
+   代码块要能一眼认出是「UI 示意图」（等宽、不折行、能左右滚）。
+*/
+#helpbody{font-size:14px;line-height:1.75;color:#d6dae6}
+#helpbody>*:first-child{margin-top:0}
+.mdload{padding:28px 0;text-align:center;color:var(--tx2);font-size:13px}
+
+/* ---------- 标题 ---------- */
+#helpbody h1{font-size:19px;color:#fff;margin:6px 0 14px;letter-spacing:.3px}
+#helpbody h2{
+  font-size:15.5px;color:#cfe0ff;margin:24px 0 10px;padding-bottom:7px;
+  border-bottom:1px solid #2c3244;
+}
+#helpbody h3{font-size:14px;color:#a9c6ff;margin:17px 0 7px}
+#helpbody h4{font-size:13px;color:var(--tx2);margin:13px 0 6px}
+
+/* ---------- 正文 ---------- */
+#helpbody p{margin:0 0 10px}
+#helpbody b{color:#fff;font-weight:600}
+#helpbody i{color:#b9c7e8;font-style:normal}
+#helpbody a{color:#6f9cff;text-decoration:none;border-bottom:1px solid rgba(111,156,255,.4)}
+#helpbody hr{border:0;border-top:1px solid #2c3244;margin:22px 0}
+#helpbody ul,#helpbody ol{margin:0 0 11px;padding-left:20px}
+#helpbody li{margin:3px 0}
+#helpbody li::marker{color:#5b8cff}
+#helpbody blockquote{
+  margin:11px 0;padding:8px 12px;background:rgba(91,140,255,.09);
+  border-left:3px solid var(--ac);border-radius:0 8px 8px 0;color:#b9c7e8;font-size:13px;
+}
+#helpbody blockquote p:last-child{margin-bottom:0}
+
+/* 行内代码：短词级的标注（工具名、文件名这类） */
+#helpbody code{
+  background:rgba(255,255,255,.08);color:#e8d9a8;padding:1.5px 5px;
+  border-radius:5px;font-size:12px;font-family:ui-monospace,Menlo,Consolas,monospace;
+}
+/* 代码块 —— 文档里的 UI 示意图就是它。
+   要点：块本身 overflow-x 横向滚，里面的 code 必须 white-space:pre 且【不能被折行】——
+   手机屏窄，一折行 ASCII 图的框线就全断了。所以 code 用 inline-block + min-width:max-content，
+   让它在窄屏下自己撑出去，由外面那层滚。 */
+#helpbody pre.mdcode{
+  margin:11px 0;padding:11px 13px;background:#14161f;
+  border:1px solid #2c3244;border-radius:9px;overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+#helpbody pre.mdcode code{
+  display:inline-block;min-width:max-content;
+  background:none;color:#c8cfdd;padding:0;font-size:11.5px;line-height:1.62;
+  white-space:pre;overflow-wrap:normal;word-break:normal;
+  font-family:ui-monospace,Menlo,Consolas,monospace;
+}
+/* ---------- 表格 ---------- */
+.mdtw{margin:11px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+#helpbody table{border-collapse:collapse;width:100%;font-size:13px;min-width:0}
+#helpbody th,#helpbody td{
+  padding:7px 10px;border:1px solid #2c3244;text-align:left;vertical-align:top;
+}
+#helpbody th{background:rgba(91,140,255,.12);color:#cfe0ff;font-weight:600;white-space:nowrap}
+#helpbody td{color:#ccd3e2}
+#helpbody tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+#helpbody img.mdimg{max-width:100%;border-radius:8px;margin:8px 0}

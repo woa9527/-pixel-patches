@@ -1,0 +1,46 @@
+/* layout.css
+   —— 顶栏 / 主体骨架 / 左侧工具栏 / 画布区
+   （从 index.html 拆出来的第 32-65 行）
+*/
+/* ---------- 顶栏 ---------- */
+#bar{
+  /* padding-top 用固定 6px，不再叠加 env(safe-area-inset-top)：
+     那个值是给刘海屏留的，但在安卓 PWA 全屏视图里会返回状态栏高度，
+     导致顶部凭空空出一大条。系统自己会避开状态栏，无需我们再让。 */
+  flex:none;display:flex;align-items:center;gap:6px;padding:4px 8px;
+  background:var(--bg2);border-bottom:1px solid var(--line);
+}
+.icb{width:30px;height:30px;border-radius:8px;background:var(--bg3);display:grid;place-items:center;flex:none}
+.icb:active{background:var(--line)}
+.icb.on{background:rgba(91,140,255,.25);box-shadow:inset 0 0 0 1px var(--ac);color:#cfe0ff}
+.icb[disabled]{opacity:.3}
+.icb svg{width:18px;height:18px;fill:currentColor}
+.sp{flex:1}
+
+/* ---------- 主体 ---------- */
+/* position:relative 是给调色板那两个【二级悬浮窗】留的 ——
+   它们的 left/top 就按 #main 算，而不是按 #cvwrap。理由见 index.html 里的注释。 */
+#main{flex:1;display:flex;min-height:0;position:relative}
+#tools{
+  flex:none;width:var(--tools-w);background:var(--bg2);border-right:1px solid var(--line);
+  overflow-y:auto;scrollbar-width:none;display:grid;grid-template-columns:1fr;align-content:start;
+  transition:width .18s ease;
+}
+#tools::-webkit-scrollbar{display:none}
+body.folded #tools{width:0;border:0}
+.tool{height:46px;display:grid;place-items:center;position:relative;touch-action:manipulation}
+.tool svg{width:20px;height:20px;fill:currentColor;opacity:.7}
+.tool span{
+  position:absolute;left:50%;bottom:2px;transform:translateX(-50%);
+  font-size:7.5px;opacity:.5;letter-spacing:-.5px;white-space:nowrap;
+}
+.tool.on{background:rgba(91,140,255,.2)}
+.tool.on svg{opacity:1;color:#8fb2ff}
+.tool.on:before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--ac)}
+/* 灰掉的工具（描边：没选区时）—— 看得见、点不动，点了会告诉你为什么 */
+.tool.off{opacity:.3}
+.tool.off svg{opacity:.45}
+body.folded .tool{opacity:0}
+
+#cvwrap{flex:1;position:relative;overflow:hidden;min-width:0}
+#view{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}

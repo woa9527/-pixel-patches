@@ -1,0 +1,50 @@
+/* canvas.css
+   —— 「调整当前画布大小」：拖四条边拼图式改尺寸（预览态，不点完成不落盘）
+   —— 从预览模板 canvas-mock.html 搬进来的
+*/
+
+/* ---------- 拖动手柄 ---------- */
+#handles{position:absolute;inset:0;pointer-events:none;display:none;z-index:3}
+body.adjusting #handles{display:block}
+.hd{position:absolute;pointer-events:auto;touch-action:none}
+.hd:after{content:"";position:absolute;background:#3ddc97;border-radius:3px}
+/* 四条边：一条能抓住的粗线（细线手指点不中）。
+   画布缩得很小时这些热区会互相叠，所以定死优先级：
+   角 > 左右 > 上下 —— 手指永远抓得到最精确的那个。 */
+.hd[data-d="l"],.hd[data-d="r"]{width:22px;top:0;bottom:0;cursor:ew-resize;z-index:3}
+.hd[data-d="l"]{left:-11px} .hd[data-d="r"]{right:-11px}
+.hd[data-d="t"],.hd[data-d="b"]{height:22px;left:0;right:0;cursor:ns-resize;z-index:1}
+.hd[data-d="t"]{top:-11px} .hd[data-d="b"]{bottom:-11px}
+.hd[data-d="l"]:after,.hd[data-d="r"]:after{top:0;bottom:0;width:4px;left:9px}
+.hd[data-d="t"]:after,.hd[data-d="b"]:after{left:0;right:0;height:4px;top:9px}
+.hd.corner{width:26px;height:26px;z-index:4}
+.hd.corner:after{inset:6px;border-radius:50%}
+.hd[data-d="tl"]{left:-13px;top:-13px;cursor:nwse-resize}
+.hd[data-d="tr"]{right:-13px;top:-13px;cursor:nesw-resize}
+.hd[data-d="bl"]{left:-13px;bottom:-13px;cursor:nesw-resize}
+.hd[data-d="br"]{right:-13px;bottom:-13px;cursor:nwse-resize}
+.hd:active:after{background:#fff}
+/* 画布被压得很扁/很窄时，角手柄会整个盖住边手柄 —— 这种时候只留四条边更好使 */
+#handles.tight .hd.corner{display:none}
+
+/* ---------- 调整模式顶部条 ---------- */
+#hud{position:absolute;left:50%;top:8px;transform:translateX(-50%);display:none;
+  background:rgba(22,24,34,.95);border:1px solid #3ddc97;border-radius:11px;
+  padding:6px 10px;align-items:center;gap:9px;box-shadow:0 6px 22px rgba(0,0,0,.5);z-index:6}
+body.adjusting #hud{display:flex}
+#hud b{font-size:15px;font-variant-numeric:tabular-nums;color:#3ddc97;min-width:78px;text-align:center}
+#hud button{padding:5px 11px;border-radius:8px;background:var(--bg3);font-size:12px;font-weight:600;color:var(--tx)}
+#hud .done{background:#3ddc97;color:#08281c}
+
+/* ---------- 进调整模式：挡画布的全收掉 ----------
+   不管之前开着什么（调色板、左侧工具栏、双击工具弹出的属性栏、
+   吸到边上的色块、底部卡槽），统统收掉 —— 画布要用来拖边，不能被挡。
+   卡槽收掉后画布会变高，所以进出的时候都要 resize() 一下把画布尺寸对上。 */
+/* 顶栏也一起收：调整模式下撤销/重做本来就不能用（尺寸会变），
+   菜单更是会跟顶部条打架。收掉之后画布还能再高一点。 */
+body.adjusting #bar{display:none!important}
+body.adjusting #rack,
+body.adjusting #tools,
+body.adjusting #prop,
+body.adjusting #paint,
+body.adjusting #swatches{display:none!important}
