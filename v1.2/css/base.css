@@ -1,0 +1,25 @@
+/* base.css
+   —— 变量 / 全局重置 / 通用小组件
+   （从 index.html 拆出来的第 16-31 行）
+*/
+:root{
+  --bg:#0d0e14; --bg2:#161822; --bg3:#222838; --line:#2a2f3d;
+  --tx:#e8eaf2; --tx2:#9aa0b4; --ac:#5b8cff; --danger:#ff5b6e; --ok:#3ddc97;
+  /* 工具栏宽度：44px 够放图标+小字，比原来的 54px 省 10px 给画布 */
+  --tools-w:44px;
+  /* 右侧调色板展开宽度。手机上 162px 刚好：够放色板，画布还剩一大半 */
+  --paint-w:162px;
+  /* 顶栏实际高度。吸附的色块要贴着顶栏下沿，写死会错位，
+     所以 main.js 里用 ResizeObserver 按真实高度覆盖它（这个 39px 只是首屏兜底）。 */
+  --bar-h:39px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden}
+body{
+  background:var(--bg);color:var(--tx);
+  font:14px/1.4 -apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif;
+  user-select:none;-webkit-user-select:none;
+  display:flex;flex-direction:column;height:100dvh;
+}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+#app{display:flex;flex-direction:column;height:100%}

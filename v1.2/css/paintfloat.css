@@ -1,0 +1,218 @@
+/* paintfloat.css
+   —— 调色板的【二级悬浮窗】+【临时卡槽】+【加入卡槽弹窗】
+   ------------------------------------------------------------
+   里面每一条几乎都是踩坑踩出来的，改之前先看注释，别顺手删：
+
+   · .mixfloat.mini 的 padding 必须写成 6 / 6 —— 靠 JS 撑宽度会把把手挤偏
+   · .hsv 的 padding-top:9 + margin-top:-9 —— 不垫这 9px，最上面那条游标三角被切
+   · .hsv 的 padding-right:5 —— 游标三角有一半是探出色条的，不垫就被裁掉一半
+   · .hsv .bar 不能写 border —— 边框圈里画的是「渐变尾巴平铺过来的颜色」，
+     于是 V 条最左边挂着一点蓝、S 条最右边挂着一点灰白（看着像有白边）
+   · .cal::before 必须用 clip-path —— 用 border 画三角，尖端落在左边缘，
+     而白线中心在「左边缘 +0.5px」，差半像素看着就是歪的
+*/
+
+/* ↓↓↓ 1 面板：两块各套一个虚线框（只有「颜色配比」和「临时卡槽」套）↓↓↓ */
+.sect{
+  border:1px dashed #3a4257;border-radius:11px;background:rgba(255,255,255,.028);
+  /* 标题行正好压着一个框时：框自己别再垫 9px，让它们是「贴」着的 */
+  padding:5px 7px 6px;margin-top:9px;flex:none;
+}
+.plab + .sect{margin-top:0}
+.plab.hug{margin-bottom:3px}   /* 这一行下面紧接着就是框 —— 贴紧一点 */
+.sect .plab{margin:0 0 5px}
+.sect .acts{margin-top:8px}
+
+/* ↓↓↓ 2 颜色配比：5 档（面板里 / 悬浮窗里同一套颜色）↓↓↓ */
+.mix{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;flex:none}
+/* 【正方形】以前写 height:30 —— 5 格平分下来每格只有 24.8 宽，30 高就让它成了
+   竖着的长方形，整块看着凭空高一截。改成跟着宽度走，多宽就多高。 */
+.mix i{display:block;aspect-ratio:1/1;border-radius:6px;border:1.5px solid rgba(255,255,255,.12)}
+.mix em{
+  display:block;text-align:center;font-size:8px;color:var(--tx2);
+  margin-top:3px;font-style:normal;letter-spacing:-.4px;
+}
+/* 【悬浮按钮】一个小方块 + 一支箭头射出去 = 「这一整块能摘出去变悬浮条」。
+   点它 = 整块从面板里搬出去；亮起来 = 现在正在外面。
+   color 跟着走：普通态灰、亮着态蓝，一个 currentColor 全搞定。 */
+.ab{
+  display:inline-grid;place-items:center;width:18px;height:18px;padding:0;
+  border-radius:5px;background:var(--bg3);color:var(--tx2);
+  margin-right:6px;vertical-align:-5px;border:1px solid var(--line);cursor:pointer;
+}
+.ab svg{width:12px;height:12px;display:block}
+.ab.on{
+  background:rgba(91,140,255,.22);color:#cfe0ff;
+  box-shadow:inset 0 0 0 1px var(--ac);border-color:transparent;
+}
+/* 面板头部那个「H/S/V 摘出去」的按钮，跟 .ab 一个样子 */
+.pin2{
+  display:inline-grid;place-items:center;width:26px;height:26px;flex:none;
+  border-radius:8px;background:var(--bg3);color:var(--tx2);cursor:pointer;
+}
+.pin2 svg{width:15px;height:15px;fill:currentColor;opacity:.65}
+.pin2.on{background:rgba(91,140,255,.24);color:#cfe0ff;box-shadow:inset 0 0 0 1px var(--ac)}
+.pin2.on svg{opacity:1}
+
+/* ↓↓↓ 3 临时卡槽（照底部卡槽 .grid 的样子做的迷你版）↓↓↓ */
+.tmp{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:4px;flex:none;
+  /* 只露两行：格宽 = 28，两行 = 28*2+4 = 60，超了自己在里头滑 */
+  max-height:60px;overflow-y:auto;overscroll-behavior:contain;
+  scrollbar-width:none;-ms-overflow-style:none;
+}
+.tmp::-webkit-scrollbar{display:none;width:0;height:0}
+.tmp i{aspect-ratio:1/1;border-radius:7px;border:1.5px solid rgba(255,255,255,.1);position:relative}
+/* 透明方块 = 「加在这里」：跟底部卡槽的空位一模一样（虚线 + 斜纹 + ＋号） */
+.tmp i.empty{
+  border:1.5px dashed #3a4257;
+  background:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(255,255,255,.045) 3px,rgba(255,255,255,.045) 6px);
+}
+.tmp i.empty:after{
+  content:"+";position:absolute;inset:0;display:grid;place-items:center;
+  font-size:12px;color:#4d566d;font-weight:600;
+}
+/* 快捷清空（垃圾桶）：紧跟在 ＋ 后面。
+   样式跟 ＋ 那格对齐（同样的虚线框），只是里面换成垃圾桶图标 ——
+   一眼能看出「这两格都是动作，不是颜色」。 */
+.tmp i.bin{
+  border:1.5px dashed #3a4257;color:#6b7285;cursor:pointer;
+  background:rgba(255,255,255,.02);
+}
+.tmp i.bin svg{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:14px;height:14px;display:block;
+}
+.tmp i.bin:active{background:rgba(255,91,110,.18);color:#ff8a97;border-color:#5a3540}
+
+/* ↓↓↓ 4 悬浮窗本体 ↓↓↓ */
+.mixfloat{
+  position:absolute;display:none;align-items:stretch;gap:0;
+  padding:5px;border-radius:12px;
+  background:rgba(22,24,34,.94);border:1px solid #3a4257;
+  box-shadow:0 8px 26px rgba(0,0,0,.55);
+  z-index:60;touch-action:none;cursor:grab;
+}
+.mixfloat.on{display:flex}
+/* 反方向展开：手柄挪到右边，内容往左长 */
+.mixfloat.flip{flex-direction:row-reverse}
+/* 翻转时分割线边距也要换边，但【左右加起来必须跟原来一样】，
+   不然展开后的总宽变了，钉住的那条边会多出几像素的缝 */
+.mixfloat.flip .sep{margin:0 7px}          /* 普通窗：原来也是 7 / 7 */
+.hsvbar.flip .sep{margin:0 5px 0 3px}      /* H/S/V 那条：字母仍要贴着分割线 */
+/* 量尺寸专用：临时掐掉所有动画，不然量到的是过渡中间值 */
+.mixfloat.nofx,.mixfloat.nofx *{transition:none!important}
+
+/* 手柄：不再是小方块 —— 跟悬浮窗一样高、窄窄一条，才像「把手」 */
+.mixfloat .grip{
+  width:16px;min-height:26px;align-self:stretch;border-radius:6px;background:var(--bg3);flex:none;
+  display:grid;place-items:center;
+}
+.mixfloat .grip .dots{display:grid;grid-template-columns:repeat(2,3px);gap:3px}
+.mixfloat .grip s{
+  width:3px;height:3px;border-radius:50%;background:#8b93aa;display:block;text-decoration:none;
+}
+/* 手柄和颜色之间：一条明确的竖线分割。H/S/V 要紧挨着它，所以右边只留 3px */
+.mixfloat .sep{width:1px;flex:none;margin:0 7px;background:#454d63}
+
+/* 【组合要拉成同宽】宽度不写死，写成 30px + 变量。
+   单独一个窗时变量是 0（就是原来的 30px）；拼上去之后 JS 把变量调大，5 格一起变宽。
+   （试过用 flex:1 1 30px 自动撑，结果窗宽会塌 —— 基准值得写死才稳） */
+.mixfloat .fx5{display:flex;gap:4px}
+.mixfloat .fx5 div{width:calc(30px + var(--grow,0px));transition:width .22s ease}
+.mixfloat .fx5 i{display:block;height:26px;border-radius:6px;border:1.5px solid rgba(255,255,255,.12)}
+/* 悬浮窗里不要文字 —— 5 档的名字只在面板里那块显示 */
+.mixfloat .fx5 em{display:none}
+
+/* ---- 收起态 = 像抽屉拉上：**高度一点不变，只有宽度收** ----
+   手柄还是竖的那条（跟窗一样高），只是右边的内容被"推"回去了。 */
+.mixfloat .fx5,.mixfloat .hsv{
+  overflow:hidden;max-width:420px;
+  transition:max-width .22s ease,opacity .16s ease;
+}
+.mixfloat .sep{overflow:hidden;transition:width .22s ease,margin .22s ease,opacity .16s ease}
+.mixfloat.mini .fx5,.mixfloat.mini .hsv{max-width:0;padding-right:0;opacity:0}
+.mixfloat.mini .sep{width:0;margin:0;opacity:0}
+.mixfloat.mini .grip{width:16px;min-height:0;align-self:stretch}
+/* 【收起后两个窗必须一样宽】原来一个 30 一个 28（差别就是左右内边距 6 / 5），
+   再靠 JS 把窄的那个撑宽，里面那条把手就被推出去了 —— 看着就是"偏了没居中"。
+   现在直接从根上相等：收起态统一左右 6px，天生就是 30 = 30，不需要谁迁就谁。
+   （上面那句 padding-right:0 同理：给游标三角留的 5px，
+     border-box 下 max-width:0 吃不掉 padding，会残留 5px 把把手挤偏。） */
+.mixfloat.mini{padding-left:6px;padding-right:6px}
+.mixfloat.mini .grip .dots{grid-template-columns:repeat(2,3px)}
+
+/* ---- 上下吸成一整块 ----
+   只能上下，不能左右。拼上之后外面看就是一个长方块：
+     · 接缝处不圆角（上窗只留上圆角，下窗只留下圆角）
+     · 下窗往上压 1px，两条 1px 边框合成一条线
+     · 两个窗拉成一样宽（宽度靠 JS 写 --grow，内容自己撑开） */
+.mixfloat.grp.above{border-radius:12px 12px 0 0}
+.mixfloat.grp.below{border-radius:0 0 12px 12px;margin-top:-1px}
+.mixfloat.grp{box-shadow:0 6px 20px rgba(0,0,0,.5)}
+
+/* ---- H / S / V 三条 ---- */
+.hsv{display:flex;flex-direction:column;gap:9px;padding:9px 5px 0 0;margin-top:-9px}
+.hsv .hr{display:flex;align-items:center;gap:5px;min-width:0}
+.hsv .hr b{
+  font:600 10px/1 ui-monospace,Menlo,monospace;color:var(--tx2);
+  width:9px;flex:none;text-align:left;
+}
+/* 拉长 + 压薄：190×17，省下来的高度全给三角。
+   190 是基准值，拼上去之后 JS 加大 --grow，色条自己变长 */
+.hsv .bar{
+  position:relative;width:calc(190px + var(--grow,0px));height:17px;border-radius:4px;flex:none;
+  /* 【不能用 border】背景默认只铺到 padding-box，那 1px 边框圈里画的是
+     "渐变尾巴平铺过来的颜色" —— 于是 V 条（黑→蓝）最左边挂着一点蓝、
+     S 条最右边挂着一点灰白，看着就像没铺满 / 有白边。
+     改成无边框 + 内阴影描边：渐变铺满整条，1px 暗线压在渐变上面，两端才是真的端色。 */
+  border:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.45);
+  background-origin:border-box;background-clip:border-box;
+  touch-action:none;cursor:ew-resize;
+  transition:width .22s ease;
+}
+/* 拖动时浮在窗上方的数值气泡（只在手指按着的时候出现） */
+.mixfloat .rd{
+  position:absolute;left:50%;top:-26px;transform:translateX(-50%);
+  background:rgba(0,0,0,.85);border-radius:6px;padding:2px 6px;
+  font:600 10px/1.5 ui-monospace,Menlo,monospace;color:#fff;
+  opacity:0;transition:opacity .12s;pointer-events:none;white-space:nowrap;
+}
+/* 游标卡尺：只要上面那个倒三角 + 一条竖线指到条上。
+   底下那个三角去掉了。不用圆点（圆点挡视线、也不够精确）。 */
+.cal{
+  position:absolute;top:-7px;bottom:0;width:1px;background:rgba(255,255,255,.9);
+  transform:translateX(-50%);pointer-events:none;
+}
+/* 【修】原来用 border 画三角：整块 8px 宽、尖端落在「左边缘」，
+   而白线的中心在「左边缘 +0.5px」—— 差半像素，看着就是歪的。
+   改成 clip-path：以白线为中心左右各 4.5px，尖端精确压在白线上；
+   高度 7px（配合 top:-7px），尖端刚好点到色条上沿，不留缝。 */
+.cal::before{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:9px;height:7px;background:#fff;clip-path:polygon(0 0,100% 0,50% 100%);
+}
+
+/* ↓↓↓ 5 「临时卡槽 → 卡槽」弹窗 ↓↓↓ */
+#dlgMask{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;
+  opacity:0;pointer-events:none;transition:opacity .16s}
+#dlgMask.on{opacity:1;pointer-events:auto}
+#dlgAdd{
+  position:fixed;left:50%;top:50%;z-index:201;width:248px;
+  transform:translate(-50%,-50%) scale(.94);opacity:0;pointer-events:none;
+  transition:opacity .16s,transform .16s;
+  background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:14px;
+  box-shadow:0 12px 34px rgba(0,0,0,.6);display:flex;flex-direction:column;gap:8px;
+}
+#dlgAdd.on{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.dh{font-size:13px;font-weight:600;color:var(--tx);display:flex;align-items:baseline;gap:6px}
+.dh b{font-size:10px;color:var(--tx2);font-weight:500}
+.dt{margin:0;font-size:10.5px;color:var(--tx2);line-height:1.6}
+#dlgAdd .op{
+  border:0;padding:9px 11px;border-radius:10px;background:var(--bg3);color:var(--tx);
+  font-size:12px;font-weight:600;text-align:left;display:flex;flex-direction:column;gap:3px;
+}
+#dlgAdd .op u{text-decoration:none}
+#dlgAdd .op small{font-size:9.5px;color:var(--tx2);font-weight:400;line-height:1.5}
+#dlgAdd .op.c{background:transparent;border:1px solid var(--line);color:var(--tx2);text-align:center}
+#dlgAdd .op:disabled{opacity:.42}

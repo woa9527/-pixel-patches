@@ -1,0 +1,72 @@
+/* menu.css
+   —— 「⋯」菜单的一级列表 / 二级页 / 设置页 / 更新卡片 / 顶栏小红点
+
+   类名一律前缀限定作用域（.mrow / .setrow / .upcard 各自套着自己的子元素），
+   不带前缀的裸类名以前漏出去过一次（export.css 里那个 .sw 把调色板色块染了色），
+   这次不再犯。
+*/
+/* ---------- 一级列表 ---------- */
+#sheet .mlist{display:flex;flex-direction:column;gap:6px}
+.mrow{display:flex;align-items:center;gap:11px;width:100%;padding:11px 12px;
+  border-radius:12px;background:var(--bg3);text-align:left}
+.mrow .mi{width:22px;height:22px;flex:none;display:grid;place-items:center;color:var(--tx2)}
+.mrow .mi svg{width:20px;height:20px;fill:currentColor}
+.mrow .mt{flex:1;min-width:0}
+.mrow .mt b{display:block;font-size:14px;font-weight:600;color:var(--tx)}
+/* 副标题显示的是「现在是什么样」—— 画布尺寸、工作区名、版本号。
+   二级结构最大的毛病就是状态藏太深，这一行就是为了补上它。 */
+.mrow .mt em{display:block;font-style:normal;font-size:10.5px;color:var(--tx2);margin-top:2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mrow .ma{flex:none;color:var(--tx2);font-size:19px;line-height:1}
+.mrow .mdot{display:none;width:7px;height:7px;border-radius:50%;background:var(--danger);flex:none}
+/* 有新版本：加个小红点，副标题变红。不弹窗，点不进来就完全不被打扰。 */
+.mrow.hasup .mdot{display:block}
+.mrow.hasup .mt em{color:var(--danger)}
+
+/* ---------- 二级页头 ----------
+   右上角那个「关闭」是 openSheet() 每次重新生成的，不用在这儿管。 */
+.mhead{display:flex;align-items:center;gap:4px;margin:-4px 0 10px}
+.mhead .mback{flex:none;padding:5px 12px 5px 2px;font-size:20px;color:var(--ac);line-height:1}
+.mhead b{flex:1;font-size:15px;text-align:left}
+
+/* ---------- 设置页：一行一个开关 ---------- */
+.setrow{display:flex;align-items:center;gap:10px;padding:10px 2px;
+  border-bottom:1px solid var(--line)}
+.setrow:last-child{border-bottom:0}
+.setrow .st{flex:1;min-width:0}
+.setrow .st b{display:block;font-size:13.5px;color:var(--tx)}
+.setrow .st small{display:block;font-size:10.5px;color:var(--tx2);margin-top:2px;line-height:1.45}
+/* 开关本体：一个胶囊 + 一个会滑的小圆点 */
+.tg{width:44px;height:26px;border-radius:13px;background:var(--bg3);flex:none;position:relative;
+  box-shadow:inset 0 0 0 1px var(--line);transition:background .18s,box-shadow .18s}
+.tg:after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;
+  background:var(--tx2);transition:left .18s,background .18s}
+.tg.on{background:rgba(91,140,255,.28);box-shadow:inset 0 0 0 1px var(--ac)}
+.tg.on:after{left:21px;background:var(--ac)}
+/* 还没实现功能的开关：灰掉一眼能看出来，但仍然能开能关（值照存） */
+.tg.todo{opacity:.55}
+.setrow.todo .st small{color:var(--tx2);opacity:.8}
+
+/* ---------- 关于：左边标签右边值 ---------- */
+.abrow{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:7px 2px;font-size:12.5px;color:var(--tx2)}
+.abrow b{color:var(--tx);font-weight:600;font-variant-numeric:tabular-nums;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- 更新卡片 ---------- */
+.upcard{margin-top:10px;padding:11px;border-radius:12px;
+  background:rgba(91,140,255,.10);box-shadow:inset 0 0 0 1px rgba(91,140,255,.35)}
+.upcard b{font-size:13.5px;color:var(--tx)}
+/* 更新说明里带 \n，pre-line 才换行 */
+.upcard .ds{font-size:11.5px;color:var(--tx2);margin:5px 0 9px;
+  white-space:pre-line;line-height:1.6}
+.upcard .bar{display:none;height:4px;border-radius:2px;background:var(--bg3);
+  overflow:hidden;margin-top:9px}
+.upcard .bar.on{display:block}
+.upcard .bar i{display:block;height:100%;width:0;background:var(--ac);transition:width .2s}
+
+/* ---------- 顶栏「⋯」上的小红点 ----------
+   启动时静默检查发现新版本才会加这个 class。 */
+#btnMenu.hasup{position:relative}
+#btnMenu.hasup:after{content:"";position:absolute;top:5px;right:6px;width:7px;height:7px;
+  border-radius:50%;background:var(--danger)}
